@@ -1,7 +1,7 @@
 /****************************************************************************
  * This file is part of Hawaii Shell.
  *
- * Copyright (C) 2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+ * Copyright (C) 2012-2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  *
  * Author(s):
  *    Pier Luigi Fiorini
@@ -24,14 +24,16 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-import QtQuick 2.0
-import Hawaii.Shell.Styles 0.1
+#ifndef POPUPWINDOW_H
+#define POPUPWINDOW_H
 
-Style {
-    property int shadowSize: 8
-    property color panelColor: Qt.rgba(0, 0, 0, 0.7)
+#include "shellwindow.h"
 
-    property Component panel: Rectangle {
-        color: panelColor
-    }
-}
+class PopupWindow : public ShellWindow
+{
+    Q_OBJECT
+public:
+    PopupWindow();
+};
+
+#endif // POPUPWINDOW_H

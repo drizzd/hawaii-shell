@@ -1,7 +1,7 @@
 /****************************************************************************
  * This file is part of Hawaii Shell.
  *
- * Copyright (C) 2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+ * Copyright (C) 2012-2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  *
  * Author(s):
  *    Pier Luigi Fiorini
@@ -24,126 +24,9 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-#include <QtCore/QDebug>
-#include <QtGui/QGuiApplication>
-#include <QtGui/QWindow>
-#include <QtGui/QScreen>
-#include <QtQuick/QQuickItem>
-
-#include <qpa/qplatformnativeinterface.h>
-
 #include "launcherwindow.h"
-#include "desktopshell.h"
-#include "desktopshell_p.h"
-#include "shellui.h"
 
-LauncherWindow::LauncherWindow(ShellUi *ui)
-    : QQuickView(ui->engine(), new QWindow(ui->screen()))
-    , m_surface(0)
+LauncherWindow::LauncherWindow()
+    : ShellWindow(ShellWindow::Launcher)
 {
-    // Set transparent color
-    setColor(Qt::transparent);
-
-    // Set custom window type
-    setFlags(flags() | Qt::BypassWindowManagerHint);
-
-    // Set Wayland window type
-    create();
-    setWindowType();
-
-    // Load QML component
-    setSource(QUrl("qrc:/qml/Launcher.qml"));
-
-    // Load settings
-    m_settings = new LauncherSettings(this);
-
-    // Resizing the view resizes the root object
-    setResizeMode(QQuickView::SizeRootObjectToView);
-    resetGeometry();
-
-    // React to screen size changes, icon size and alignment changes
-    connect(ui->screen(), SIGNAL(geometryChanged(QRect)),
-            this, SLOT(geometryChanged(QRect)));
-    connect(m_settings, SIGNAL(alignmentChanged(LauncherSettings::Alignment)),
-            this, SLOT(resetGeometry()));
-    connect(rootObject(), SIGNAL(sizeChanged()),
-            this, SLOT(resetGeometry()));
-
-    // Make this window accessible from QML
-    rootObject()->setProperty("window", QVariant::fromValue(
-                                  qobject_cast<QObject *>(this)));
-
-    // Debugging message
-    qDebug() << "-> Created Launcher with geometry"
-             << geometry();
 }
-
-LauncherWindow::~LauncherWindow()
-{
-    delete m_settings;
-}
-
-wl_surface *LauncherWindow::surface() const
-{
-    return m_surface;
-}
-
-LauncherSettings *LauncherWindow::settings() const
-{
-    return m_settings;
-}
-
-void LauncherWindow::geometryChanged(const QRect &rect)
-{
-    qDebug() << "Resizing Launcher because screen"
-             << screen()->name() << "is now" << rect;
-    resetGeometry();
-}
-
-void LauncherWindow::resetGeometry()
-{
-    int size = rootObject()->property("size").toInt();
-    int panelSize = 24;
-    int l = screen()->geometry().left();
-    int t = screen()->geometry().top();
-    int w = screen()->geometry().width();
-    int h = screen()->geometry().height();
-    QRect rect;
-
-    switch (m_settings->alignment()) {
-    case LauncherSettings::LeftAlignment:
-        rect = QRect(l, t + panelSize, size, h - panelSize);
-        break;
-    case LauncherSettings::RightAlignment:
-        rect = QRect(l + w - size, t + panelSize, size, h - panelSize);
-        break;
-    case LauncherSettings::BottomAlignment:
-        rect = QRect(l, t + h - size, w, size);
-        break;
-    }
-
-    setGeometry(rect);
-    setSurfacePosition();
-}
-
-void LauncherWindow::setWindowType()
-{
-    QPlatformNativeInterface *native = QGuiApplication::platformNativeInterface();
-
-    wl_output *output = static_cast<struct wl_output *>(
-                native->nativeResourceForScreen("output", screen()));
-
-    m_surface = static_cast<struct wl_surface *>(
-                native->nativeResourceForWindow("surface", this));
-
-    DesktopShellImpl *shell = DesktopShell::instance()->d_ptr->shell;
-    shell->set_launcher(output, m_surface);
-}
-
-void LauncherWindow::setSurfacePosition()
-{
-    DesktopShellImpl *shell = DesktopShell::instance()->d_ptr->shell;
-    shell->set_position(m_surface, geometry().x(), geometry().y());
-}
-
-#include "moc_launcherwindow.cpp"

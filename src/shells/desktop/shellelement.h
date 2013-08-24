@@ -1,7 +1,7 @@
 /****************************************************************************
  * This file is part of Hawaii Shell.
  *
- * Copyright (C) 2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+ * Copyright (C) 2012-2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  *
  * Author(s):
  *    Pier Luigi Fiorini
@@ -24,21 +24,23 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-#ifndef SHELLWINDOW_H
-#define SHELLWINDOW_H
+#ifndef SHELLELEMENT_H
+#define SHELLELEMENT_H
 
-#include <QtQuick/QQuickWindow>
+#include <QtQuick/QQuickItem>
 
-struct wl_compositor;
-
-class ShellWindow : public QQuickWindow
+class ShellElement : public QQuickItem
 {
     Q_OBJECT
+    Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(QRect screenGeometry READ screenGeometry NOTIFY screenGeometryChanged)
-    Q_ENUMS(ElementType)
+    Q_PROPERTY(qreal elementX READ elementX WRITE setElementX NOTIFY elementXChanged)
+    Q_PROPERTY(qreal elementY READ elementY WRITE setElementY NOTIFY elementYChanged)
+    Q_ENUMS(Type)
 public:
-    enum ElementType {
-        Background = 0,
+    enum Type {
+        Unknown = 0,
+        Background,
         Panel,
         Launcher,
         Overlay,
@@ -46,30 +48,38 @@ public:
         Window
     };
 
-    ShellWindow(ElementType type);
+    ShellElement(QQuickItem *parent = 0);
 
-    ElementType elementType() const;
+    Type type() const;
+    void setType(Type type);
+
+    QScreen *screen() const;
+    void setScreen(QScreen *screen);
 
     QRect screenGeometry() const;
 
-    bool isSurfaceVisible() const;
-    void setSurfaceVisible(bool value);
+    QPointF elementPosition() const;
+
+    qreal elementX() const;
+    void setElementX(qreal x);
+
+    qreal elementY() const;
+    void setElementY(qreal y);
 
 Q_SIGNALS:
+    void typeChanged(ShellElement::Type type);
     void screenGeometryChanged(const QRect &geometry);
-    void surfaceVisibleChanged(bool value);
+    void elementXChanged(qreal x);
+    void elementYChanged(qreal y);
+
+public Q_SLOTS:
+    void show();
+    void hide();
 
 private:
-    ElementType m_type;
-    wl_compositor *m_compositor;
-    bool m_typeAlreadySet;
-    bool m_posSent;
-
-private Q_SLOTS:
-    void setWindowType();
-    void setSurfacePosition(const QPoint &pt);
-    void setInputRegion(const QRect &r);
-    void setOpaqueRegion(const QRect &r);
+    Type m_type;
+    QScreen *m_screen;
+    QPointF m_pos;
 };
 
-#endif // SHELLWINDOW_H
+#endif // SHELLELEMENT_H

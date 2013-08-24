@@ -27,16 +27,13 @@
 #ifndef OVERLAYWINDOW_H
 #define OVERLAYWINDOW_H
 
-#include <QtQuick/QQuickWindow>
+#include "shellwindow.h"
 
-class OverlayWindow : public QQuickWindow
+class OverlayWindow : public ShellWindow
 {
     Q_OBJECT
 public:
-    OverlayWindow(QWindow *parent = 0);
-
-private:
-    void setWindowType();
+    OverlayWindow();
 };
 
 #endif // OVERLAYWINDOW_H

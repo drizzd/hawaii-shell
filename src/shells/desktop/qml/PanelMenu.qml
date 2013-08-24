@@ -32,7 +32,6 @@ Popup {
     id: panelMenu
     width: menu.width
     height: menu.height
-    visible: false
 
     default property alias content: menuContents.children
 
@@ -68,7 +67,7 @@ Popup {
                         function connectClickedSignal() {
                             for (var i = 0; i < children.length; ++i) {
                                 if (children[i].clicked != undefined)
-                                    children[i].clicked.connect(panelMenu.close);
+                                    children[i].clicked.connect(panelMenu.hide);
                             }
                         }
 
@@ -148,13 +147,5 @@ Popup {
                 }
             }
         ]
-    }
-
-    function open() {
-        visible = true;
-    }
-
-    function close() {
-        visible = false;
     }
 }

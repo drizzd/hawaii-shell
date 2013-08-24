@@ -32,16 +32,13 @@
 #include <qpa/qplatformnativeinterface.h>
 
 #include "shellui.h"
+#include "shellwindow.h"
 #include "desktopshell.h"
 
 ShellUi::ShellUi(QQmlEngine *engine, QScreen *screen, QObject *parent)
     : QObject(parent)
     , m_engine(engine)
     , m_screen(screen)
-    , m_backgroundWindow(0)
-    , m_panelWindow(0)
-    , m_launcherWindow(0)
-    , m_lockScreenWindow(0)
     , m_numWorkspaces(0)
 {
     // Native platform interface
@@ -55,21 +52,38 @@ ShellUi::ShellUi(QQmlEngine *engine, QScreen *screen, QObject *parent)
     m_grabWindow = new GrabWindow(screen);
     m_grabWindow->show();
 
-    // Create Background window
-    m_backgroundWindow = new BackgroundWindow(this);
-    m_backgroundWindow->show();
-
-    // Create Panel window
-    m_panelWindow = new PanelWindow(this);
-    m_panelWindow->show();
-
-    // Create Launcher window
-    m_launcherWindow = new LauncherWindow(this);
-    m_launcherWindow->show();
-
     // React to screen size changes
     connect(screen, SIGNAL(geometryChanged(QRect)),
             this, SLOT(updateScreenGeometry(QRect)));
+
+    // Create QML component
+    m_component = new QQmlComponent(engine, this);
+    m_component->loadUrl(QUrl("qrc:/qml/Shell.qml"));
+    if (!m_component->isReady())
+        qFatal(qPrintable(m_component->errorString()));
+
+    // Root object
+    m_rootObject = m_component->create();
+    if (!m_rootObject)
+        qFatal("Couldn't create component from Shell.qml!");
+
+    // Setup all shell elements
+    const QObjectList objects = m_rootObject->children();
+    for (int i = 0; i < objects.size(); i++) {
+        ShellWindow *window = qobject_cast<ShellWindow *>(objects.at(i));
+        if (!window)
+            continue;
+
+        qDebug() << "Creating shell window" << window->objectName();
+
+        // Setup window
+        window->moveToThread(QCoreApplication::instance()->thread());
+        window->setScreen(screen);
+        window->show();
+
+        // Append window to the list to retrieve it later
+        m_windows.append(window);
+    }
 
     // Send available geometry to the compositor
     updateScreenGeometry(screen->geometry());
@@ -77,10 +91,7 @@ ShellUi::ShellUi(QQmlEngine *engine, QScreen *screen, QObject *parent)
 
 ShellUi::~ShellUi()
 {
-    m_lockScreenWindow->close();
-    m_panelWindow->close();
-    m_launcherWindow->close();
-    m_backgroundWindow->close();
+    delete m_grabWindow;
 }
 
 QQmlEngine *ShellUi::engine() const
@@ -108,28 +119,30 @@ GrabWindow *ShellUi::grabWindow() const
     return m_grabWindow;
 }
 
-BackgroundWindow *ShellUi::backgroundWindow() const
-{
-    return m_backgroundWindow;
-}
-
-PanelWindow *ShellUi::panelWindow() const
-{
-    return m_panelWindow;
-}
-
-LauncherWindow *ShellUi::launcherWindow() const
-{
-    return m_launcherWindow;
-}
-
 LockScreenWindow *ShellUi::lockScreenWindow() const
 {
     return m_lockScreenWindow;
 }
 
+void ShellUi::show()
+{
+    m_grabWindow->show();
+
+    for (int i = 0; i < m_windows.size(); i++)
+        m_windows.at(i)->show();
+}
+
+void ShellUi::hide()
+{
+    m_grabWindow->hide();
+
+    for (int i = 0; i < m_windows.size(); i++)
+        m_windows.at(i)->hide();
+}
+
 void ShellUi::updateScreenGeometry(const QRect &rect)
 {
+#if 0
     // Calculate available geometry
     QRect geometry = rect;
     geometry.setTop(m_panelWindow->geometry().top() +
@@ -155,6 +168,7 @@ void ShellUi::updateScreenGeometry(const QRect &rect)
 
     // Send available geometry to the compositor
     DesktopShell::instance()->setAvailableGeometry(screen(), geometry);
+#endif
 }
 
 void ShellUi::createLockScreenWindow()

@@ -1,7 +1,7 @@
 /****************************************************************************
  * This file is part of Hawaii Shell.
  *
- * Copyright (C) 2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+ * Copyright (C) 2012-2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  *
  * Author(s):
  *    Pier Luigi Fiorini
@@ -27,35 +27,12 @@
 #ifndef LAUNCHERWINDOW_H
 #define LAUNCHERWINDOW_H
 
-#include <QtQuick/QQuickView>
+#include "shellwindow.h"
 
-#include "launchersettings.h"
-
-struct wl_surface;
-
-class ShellUi;
-
-class LauncherWindow : public QQuickView
+class LauncherWindow : public ShellWindow
 {
-    Q_OBJECT
 public:
-    LauncherWindow(ShellUi *ui);
-    ~LauncherWindow();
-
-    wl_surface *surface() const;
-
-    LauncherSettings *settings() const;
-
-private Q_SLOTS:
-    void geometryChanged(const QRect &rect);
-    void resetGeometry();
-
-private:
-    wl_surface *m_surface;
-    LauncherSettings *m_settings;
-
-    void setWindowType();
-    void setSurfacePosition();
+    LauncherWindow();
 };
 
 #endif // LAUNCHERWINDOW_H

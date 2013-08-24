@@ -1,7 +1,7 @@
 /****************************************************************************
  * This file is part of Hawaii Shell.
  *
- * Copyright (C) 2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+ * Copyright (C) 2012-2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  *
  * Author(s):
  *    Pier Luigi Fiorini
@@ -27,27 +27,12 @@
 #ifndef BACKGROUNDWINDOW_H
 #define BACKGROUNDWINDOW_H
 
-#include <QtQuick/QQuickView>
+#include "shellwindow.h"
 
-#include <wayland-client.h>
-
-class ShellUi;
-
-class BackgroundWindow : public QQuickView
+class BackgroundWindow : public ShellWindow
 {
-    Q_OBJECT
 public:
-    BackgroundWindow(ShellUi *ui);
-
-    wl_surface *surface() const;
-
-private Q_SLOTS:
-    void geometryChanged(const QRect &rect);
-
-private:
-    wl_surface *m_surface;
-
-    void setWindowType();
+    BackgroundWindow();
 };
 
 #endif // BACKGROUNDWINDOW_H

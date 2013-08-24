@@ -66,7 +66,7 @@ StyledItem {
 
                 PanelMenuManager.currentIndicator = indicator;
                 selected = true;
-                menu.open();
+                menu.show();
             }
         }
         onExited: {
@@ -82,13 +82,15 @@ StyledItem {
             selected = !selected;
 
             var pos = mapToItem(null, mouse.x, mouse.y);
-            menu.x = Math.max(0, Math.min(pos.x - menu.width / 2, panel.availableGeometry.width - menu.width));
-            menu.y = panel.availableGeometry.y;
+            //menu.x = Math.max(0, Math.min(pos.x - menu.width / 2, panel.availableGeometry.width - menu.width));
+            menu.x = 50;
+            //menu.y = panel.availableGeometry.y;
+            menu.y = 100;
 
             if (selected)
-                menu.open();
+                menu.show();
             else
-                menu.close();
+                menu.hide();
 
             PanelMenuManager.triggered = selected;
             PanelMenuManager.currentIndicator = indicator;

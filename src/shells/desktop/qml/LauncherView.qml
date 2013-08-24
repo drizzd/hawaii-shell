@@ -45,34 +45,6 @@ Item {
     // Number of items
     property alias count: view.count
 
-    // Launcher window
-    property var window
-
-    // AppChooser
-    Component {
-        id: appChooserComponent
-
-        AppChooserWindow {}
-    }
-
-    Loader {
-        id: appChooserLoader
-        sourceComponent: appChooserComponent
-        onLoaded: moveAppChooser()
-    }
-
-    property alias appChooser: appChooserLoader.item
-
-    // AppChooser window follows the Launcher window when its geometry changes
-    Connections {
-        id: windowConnection
-        onXChanged: moveAppChooser()
-        onYChanged: moveAppChooser()
-        onWidthChanged: moveAppChooser()
-        onHeightChanged: moveAppChooser()
-    }
-
-    onWindowChanged: windowConnection.target = window
     /*
     onApplicationDropped: visualModel.model.pinApplication(path)
     onUrlDropped: visualModel.model.pinUrl(url)
@@ -346,7 +318,7 @@ Item {
         header: AppChooserButton {
             Connections {
                 target: appChooser
-                onVisibleChanged: checked = appChooser.visible
+                onVisibleChanged: checked = shellUi.appChooser.visible
             }
 
             Shortcut {
@@ -364,26 +336,6 @@ Item {
         }
         displaced: Transition {
             NumberAnimation { properties: "x,y"; duration: 250; easing.type: Easing.OutBounce }
-        }
-    }
-
-    function moveAppChooser() {
-        if (typeof(window) == "undefined")
-            return;
-
-        switch (alignment) {
-        case LauncherSettings.LeftAlignment:
-            appChooser.x = window.x + window.width;
-            appChooser.y = window.y;
-            break;
-        case LauncherSettings.RightAlignment:
-            appChooser.x = window.x - appChooser.width;
-            appChooser.y = window.y;
-            break;
-        case LauncherSettings.BottomAlignment:
-            appChooser.x = window.x;
-            appChooser.y = window.y - appChooser.height;
-            break;
         }
     }
 

@@ -26,25 +26,30 @@
 
 import QtQuick 2.0
 import Hawaii.Shell.Styles 0.1
+import Hawaii.Shell.Desktop 0.1
 
-StyledItem {
+PanelWindow {
     id: panel
+    x: screenGeometry.x
+    y: screenGeometry.y
+    width: screenGeometry.width
+    height: size
 
     // Minimum height
     property int size: 24
 
-    // Available screen geometry, set by C++
-    property rect availableGeometry
+    StyledItem {
+        anchors.fill: parent
+        style: Qt.createComponent("PanelStyle.qml", panel)
 
-    style: Qt.createComponent("PanelStyle.qml", panel)
-
-    PanelView {
-        anchors {
-            fill: parent
-            leftMargin: __style.padding.left
-            topMargin: __style.padding.top
-            rightMargin: __style.padding.right
-            bottomMargin: __style.padding.bottom
+        PanelView {
+            anchors {
+                fill: parent
+                leftMargin: parent.__style.padding.left
+                topMargin: parent.__style.padding.top
+                rightMargin: parent.__style.padding.right
+                bottomMargin: parent.__style.padding.bottom
+            }
         }
     }
 }

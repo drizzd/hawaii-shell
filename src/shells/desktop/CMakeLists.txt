@@ -25,6 +25,7 @@ set(SOURCES
     keybinding.cpp
     main.cpp
     registration.cpp
+    shellelement.cpp
     shellui.cpp
     shortcut.cpp
     window.cpp
@@ -50,6 +51,7 @@ set(SOURCES
     windowtypes/notificationwindow.cpp
     windowtypes/overlaywindow.cpp
     windowtypes/panelwindow.cpp
+    windowtypes/popupwindow.cpp
     windowtypes/shellwindow.cpp
 )
 

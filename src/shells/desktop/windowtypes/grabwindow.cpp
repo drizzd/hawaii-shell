@@ -36,7 +36,7 @@ GrabWindow::GrabWindow(QScreen *screen)
     : QWindow(screen)
 {
     // Set window type and resize
-    setFlags(flags() | Qt::BypassWindowManagerHint);
+    setFlags(Qt::BypassWindowManagerHint);
     resize(1, 1);
     create();
     setWindowType();

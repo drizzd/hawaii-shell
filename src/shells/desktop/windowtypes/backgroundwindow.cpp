@@ -1,7 +1,7 @@
 /****************************************************************************
  * This file is part of Hawaii Shell.
  *
- * Copyright (C) 2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+ * Copyright (C) 2012-2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  *
  * Author(s):
  *    Pier Luigi Fiorini
@@ -24,66 +24,11 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-#include <QtCore/QDebug>
-#include <QtGui/QGuiApplication>
-#include <QtGui/QWindow>
-#include <QtGui/QScreen>
-
-#include <qpa/qplatformnativeinterface.h>
-
 #include "backgroundwindow.h"
-#include "desktopshell.h"
-#include "desktopshell_p.h"
-#include "shellui.h"
 
-BackgroundWindow::BackgroundWindow(ShellUi *ui)
-    : QQuickView(ui->engine(), new QWindow(ui->screen()))
-    , m_surface(0)
+BackgroundWindow::BackgroundWindow()
+    : ShellWindow(ShellWindow::Background)
 {
-    // Set custom window type
-    setFlags(flags() | Qt::BypassWindowManagerHint);
-
-    // Set Wayland window type
-    create();
-    setWindowType();
-
-    // Load QML component
-    setSource(QUrl("qrc:/qml/Background.qml"));
-
-    // Resize view to actual size and thus resize the root object
-    setResizeMode(QQuickView::SizeRootObjectToView);
-    setGeometry(ui->screen()->geometry());
-
-    // React to screen size changes
-    connect(ui->screen(), SIGNAL(geometryChanged(QRect)),
-            this, SLOT(geometryChanged(QRect)));
-
-    // Debugging message
-    qDebug() << "-> Created Background with geometry"
-             << geometry();
-}
-
-wl_surface *BackgroundWindow::surface() const
-{
-    return m_surface;
-}
-
-void BackgroundWindow::geometryChanged(const QRect &rect)
-{
-    // Resize view to actual size
-    setGeometry(rect);
-}
-
-void BackgroundWindow::setWindowType()
-{
-    QPlatformNativeInterface *native = QGuiApplication::platformNativeInterface();
-
-    wl_output *output = static_cast<struct wl_output *>(
-                native->nativeResourceForScreen("output", screen()));
-    m_surface = static_cast<struct wl_surface *>(
-                native->nativeResourceForWindow("surface", this));
-
-    DesktopShell::instance()->d_ptr->shell->set_background(output, m_surface);
 }
 
 #include "moc_backgroundwindow.cpp"

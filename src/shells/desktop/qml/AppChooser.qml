@@ -30,10 +30,29 @@ import QtQuick.Layouts 1.0
 import Hawaii.Shell.Styles 0.1
 import Hawaii.Shell.Desktop 0.1
 
-Item {
+Popup {
     id: appChooser
-
-    property var window
+    x: {
+        switch (shellUi.launcher.alignment) {
+        case LauncherSettings.LeftAlignment:
+            return shellUi.launcher.x + shellUi.launcher.width;
+        case LauncherSettings.RightAlignment:
+            return shellUi.launcher.x - width;
+        default:
+            return shellUi.launcher.x;
+        }
+    }
+    y: {
+        switch (shellUi.launcher.alignment) {
+        case LauncherSettings.LeftAlignment:
+        case LauncherSettings.RightAlignment:
+            return shellUi.launcher.y;
+        default:
+            return shellUi.launcher.y - height;
+        }
+    }
+    width: Math.max(screenGeometry.width * 0.7, 640)
+    height: Math.max(screenGeometry.height * 0.62, 480)
 
     ColumnLayout {
         anchors {
@@ -105,7 +124,7 @@ Item {
                             onClicked: {
                                 // Launch the application and close the AppChooser
                                 var item = appsModel.get(visualIndex);
-                                window.visible = false;
+                                appChooser.visible = false;
                                 item.launch();
                             }
                         }

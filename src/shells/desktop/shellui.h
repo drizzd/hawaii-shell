@@ -28,14 +28,14 @@
 #define SHELLUI_H
 
 #include <QtCore/QObject>
+#include <QtQml/QQmlComponent>
 
 #include <wayland-client.h>
 
 #include "grabwindow.h"
-#include "backgroundwindow.h"
-#include "panelwindow.h"
-#include "launcherwindow.h"
 #include "lockscreenwindow.h"
+
+class ShellWindow;
 
 class ShellUi : public QObject
 {
@@ -54,11 +54,10 @@ public:
 
     GrabWindow *grabWindow() const;
 
-    BackgroundWindow *backgroundWindow() const;
-    PanelWindow *panelWindow() const;
-    LauncherWindow *launcherWindow() const;
-
     LockScreenWindow *lockScreenWindow() const;
+
+    void show();
+    void hide();
 
 Q_SIGNALS:
     void availableGeometryChanged(const QRect &rect);
@@ -77,10 +76,10 @@ private:
     wl_output *m_output;
     QRect m_availableGeometry;
     GrabWindow *m_grabWindow;
-    BackgroundWindow *m_backgroundWindow;
-    PanelWindow *m_panelWindow;
-    LauncherWindow *m_launcherWindow;
     LockScreenWindow *m_lockScreenWindow;
+    QQmlComponent *m_component;
+    QObject *m_rootObject;
+    QList<ShellWindow *> m_windows;
     int m_numWorkspaces;
 };
 

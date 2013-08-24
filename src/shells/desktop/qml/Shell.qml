@@ -1,7 +1,7 @@
 /****************************************************************************
  * This file is part of Hawaii Shell.
  *
- * Copyright (C) 2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+ * Copyright (C) 2012-2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  *
  * Author(s):
  *    Pier Luigi Fiorini
@@ -27,11 +27,28 @@
 import QtQuick 2.0
 import Hawaii.Shell.Styles 0.1
 
-Style {
-    property int shadowSize: 8
-    property color panelColor: Qt.rgba(0, 0, 0, 0.7)
+QtObject {
+    id: shellUi
 
-    property Component panel: Rectangle {
-        color: panelColor
+    property rect availableGeometry
+
+    /*
+     * Shell windows
+     */
+
+    property var appChooser: AppChooser {
+        objectName: "appChooser"
+    }
+
+    property var launcher: Launcher {
+        objectName: "launcher"
+    }
+
+    property var panel: Panel {
+        objectName: "panel"
+    }
+
+    property var background: Background {
+        objectName: "background"
     }
 }

@@ -24,55 +24,137 @@
  * $END_LICENSE$
  ***************************************************************************/
 
-#include <QGuiApplication>
+#include <QtGui/QGuiApplication>
+#include <QtGui/QScreen>
 
 #include <qpa/qplatformnativeinterface.h>
 
 #include "shellwindow.h"
 #include "desktopshell.h"
 #include "desktopshell_p.h"
+#include "shellui.h"
 
-ShellWindow::ShellWindow(QWindow *parent)
-    : QQuickWindow(parent)
+ShellWindow::ShellWindow(ElementType type)
+    : QQuickWindow()
+    , m_type(type)
+    , m_typeAlreadySet(false)
+    , m_posSent(false)
 {
+    // Transparent
+    setColor(Qt::transparent);
+
     // Set custom window type
-    setFlags(flags() | Qt::BypassWindowManagerHint);
+    setFlags(Qt::BypassWindowManagerHint);
 
-    // Create platform window and inform the compositor about us
+    // Compositor
+    QPlatformNativeInterface *native = QGuiApplication::platformNativeInterface();
+    m_compositor = static_cast<wl_compositor *>(
+                native->nativeResourceForIntegration("compositor"));
+
+    // Keep QML posted on screen geometry changes
+    connect(this, &ShellWindow::screenChanged, [=](QScreen *screen) {
+        connect(screen, SIGNAL(screenGeometryChanged(QRect)),
+                this, SIGNAL(screenGeometryChanged(QRect)));
+    });
+
+    // Create platform window
     create();
-    setSpecial();
-}
+    setWindowType();
 
-void ShellWindow::exposeEvent(QExposeEvent *event)
-{
-    QQuickWindow::exposeEvent(event);
-
-    if (isExposed())
+    // Change input region and position when geometry changes
+    connect(this, &ShellWindow::xChanged, [=]() {
         setSurfacePosition(position());
+    });
+    connect(this, &ShellWindow::yChanged, [=]() {
+        setSurfacePosition(position());
+    });
 }
 
-void ShellWindow::setSpecial()
+ShellWindow::ElementType ShellWindow::elementType() const
 {
+    return m_type;
+}
+
+QRect ShellWindow::screenGeometry() const
+{
+    return screen()->geometry();
+}
+
+void ShellWindow::setWindowType()
+{
+    if (m_typeAlreadySet)
+        return;
+
     QPlatformNativeInterface *native = QGuiApplication::platformNativeInterface();
 
-    wl_output *output = static_cast<struct wl_output *>(
+    wl_output *output = static_cast<wl_output *>(
                 native->nativeResourceForScreen("output", screen()));
-    wl_surface *surface = static_cast<struct wl_surface *>(
+    wl_surface *surface = static_cast<wl_surface *>(
                 native->nativeResourceForWindow("surface", this));
 
     DesktopShellImpl *shell = DesktopShell::instance()->d_ptr->shell;
-    shell->set_special(output, surface);
+    switch (elementType()) {
+    case ShellWindow::Background:
+        shell->set_background(output, surface);
+        break;
+    case ShellWindow::Panel:
+        shell->set_panel(output, surface);
+        break;
+    case ShellWindow::Launcher:
+        shell->set_launcher(output, surface);
+        break;
+    case ShellWindow::Overlay:
+        shell->set_overlay(output, surface);
+        break;
+    case ShellWindow::Popup:
+        shell->set_special(output, surface);
+        break;
+    default:
+        break;
+    }
+
+    m_typeAlreadySet = true;
 }
 
 void ShellWindow::setSurfacePosition(const QPoint &pt)
 {
+    setWindowType();
+
     QPlatformNativeInterface *native = QGuiApplication::platformNativeInterface();
 
-    wl_surface *surface = static_cast<struct wl_surface *>(
+    wl_surface *surface = static_cast<wl_surface *>(
                 native->nativeResourceForWindow("surface", this));
 
     DesktopShellImpl *shell = DesktopShell::instance()->d_ptr->shell;
     shell->set_position(surface, pt.x(), pt.y());
+
+    m_posSent = true;
+}
+
+void ShellWindow::setInputRegion(const QRect &r)
+{
+    QPlatformNativeInterface *native = QGuiApplication::platformNativeInterface();
+
+    wl_surface *surface = static_cast<wl_surface *>(
+                native->nativeResourceForWindow("surface", this));
+
+    wl_region *region = wl_compositor_create_region(m_compositor);
+    wl_region_add(region, r.x(), r.y(), r.width(), r.height());
+    wl_surface_set_input_region(surface, region);
+    wl_region_destroy(region);
+}
+
+void ShellWindow::setOpaqueRegion(const QRect &r)
+{
+    QPlatformNativeInterface *native = QGuiApplication::platformNativeInterface();
+
+    wl_surface *surface = static_cast<wl_surface *>(
+                native->nativeResourceForWindow("surface", this));
+
+    wl_region *region = wl_compositor_create_region(m_compositor);
+    wl_region_add(region, r.x(), r.y(), r.width(), r.height());
+    wl_surface_set_opaque_region(surface, region);
+    wl_region_destroy(region);
 }
 
 #include "moc_shellwindow.cpp"

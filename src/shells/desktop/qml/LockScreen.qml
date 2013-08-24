@@ -45,7 +45,7 @@ Item {
         }
     }
 
-    Background {
+    BackgroundItem {
         id: background
         anchors.fill: parent
         visible: false

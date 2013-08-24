@@ -40,11 +40,9 @@ class ShellUi;
 class Window;
 class Workspace;
 class KeyBinding;
-class BackgroundWindow;
-class PanelWindow;
-class LauncherWindow;
 class GrabWindow;
 class ShellWindow;
+class PopupWindow;
 class OverlayWindow;
 class LockScreenWindow;
 class NotificationWindow;
@@ -94,11 +92,9 @@ public Q_SLOTS:
 
 private:
     friend class DesktopShellImpl;
-    friend class BackgroundWindow;
-    friend class PanelWindow;
-    friend class LauncherWindow;
     friend class GrabWindow;
     friend class ShellWindow;
+    friend class PopupWindow;
     friend class OverlayWindow;
     friend class LockScreenWindow;
     friend class NotificationWindow;

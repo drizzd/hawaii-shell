@@ -1,7 +1,7 @@
 /****************************************************************************
  * This file is part of Hawaii Shell.
  *
- * Copyright (C) 2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+ * Copyright (C) 2012-2013 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  *
  * Author(s):
  *    Pier Luigi Fiorini
@@ -27,30 +27,12 @@
 #ifndef PANELWINDOW_H
 #define PANELWINDOW_H
 
-#include <QtQuick/QQuickView>
+#include "shellwindow.h"
 
-struct wl_surface;
-
-class ShellUi;
-
-class PanelWindow : public QQuickView
+class PanelWindow : public ShellWindow
 {
-    Q_OBJECT
 public:
-    PanelWindow(ShellUi *ui);
-
-    wl_surface *surface() const;
-
-private Q_SLOTS:
-    void geometryChanged(const QRect &rect);
-    void availableGeometryChanged(const QRect &rect);
-    void resetGeometry();
-
-private:
-    wl_surface *m_surface;
-
-    void setWindowType();
-    void setSurfacePosition();
+    PanelWindow();
 };
 
 #endif // PANELWINDOW_H

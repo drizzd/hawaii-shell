@@ -30,18 +30,23 @@
 
 #include "appcategories.h"
 #include "applicationsmodel.h"
+#include "backgroundwindow.h"
 #include "backgroundsettings.h"
 #include "enums.h"
 #include "registration.h"
 #include "keybinding.h"
+#include "launcherwindow.h"
 #include "launcheritem.h"
 #include "launchermodel.h"
 #include "launchersettings.h"
 #include "notificationwindow.h"
 #include "overlaywindow.h"
+#include "panelwindow.h"
+#include "popupwindow.h"
 #include "powermanager.h"
 #include "servicefactory.h"
 #include "sessionmanager.h"
+#include "shellelement.h"
 #include "shellwindow.h"
 #include "shortcut.h"
 #include "volumecontrol.h"
@@ -54,9 +59,13 @@ void registerQmlTypes()
     const char *uri = "Hawaii.Shell.Desktop";
 
     // Window types
-    qmlRegisterType<ShellWindow>(uri, 0, 1, "ShellWindow");
+    qmlRegisterType<ShellWindow>();
+    qmlRegisterType<BackgroundWindow>(uri, 0, 1, "BackgroundWindow");
+    qmlRegisterType<LauncherWindow>(uri, 0, 1, "LauncherWindow");
     qmlRegisterType<NotificationWindow>(uri, 0, 1, "NotificationWindow");
     qmlRegisterType<OverlayWindow>(uri, 0, 1, "OverlayWindow");
+    qmlRegisterType<PanelWindow>(uri, 0, 1, "PanelWindow");
+    qmlRegisterType<PopupWindow>(uri, 0, 1, "PopupWindow");
 
     // Settings
     qmlRegisterType<BackgroundSettings>(uri, 0, 1, "BackgroundSettings");
@@ -74,6 +83,7 @@ void registerQmlTypes()
     // Shell types
     qmlRegisterType<KeyBinding>();
     qmlRegisterType<Shortcut>(uri, 0, 1, "Shortcut");
+    qmlRegisterType<ShellElement>(uri, 0, 1, "ShellElement");
     qmlRegisterUncreatableType<Window>(uri, 0, 1, "Window",
                                        QStringLiteral("Cannot create Window"));
     qmlRegisterUncreatableType<Workspace>(uri, 0, 1, "Workspace",

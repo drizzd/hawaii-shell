@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/">
+        <!-- Main component -->
+        <file>qml/Shell.qml</file>
+
         <!-- Base components -->
         <file>qml/Dialog.qml</file>
         <file>qml/DialogStyle.qml</file>
@@ -18,6 +21,7 @@
         <!-- Background -->
         <file>qml/Background.qml</file>
         <file>qml/BackgroundRenderer.qml</file>
+        <file>qml/BackgroundItem.qml</file>
 
         <!-- Panel -->
         <file>qml/Panel.qml</file>

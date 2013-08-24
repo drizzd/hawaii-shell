@@ -25,18 +25,14 @@
  ***************************************************************************/
 
 import QtQuick 2.0
-import QtQuick.Window 2.0
 import Hawaii.Shell.Desktop 0.1
 import Hawaii.Shell.Styles 0.1
 
-ShellWindow {
-    id: popupWindow
-    color: "transparent"
-
+PopupWindow {
     default property alias content: container.children
 
     StyledItem {
-        id: root
+        id: styledItem
         anchors {
             fill: parent
             leftMargin: __style.padding.left
@@ -44,7 +40,7 @@ ShellWindow {
             rightMargin: __style.padding.right
             bottomMargin: __style.padding.bottom
         }
-        style: Qt.createComponent("PopupStyle.qml", root)
+        style: Qt.createComponent("PopupStyle.qml", styledItem)
 
         Item {
             id: container
